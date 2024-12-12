@@ -27,7 +27,7 @@ app.post(
 
 //mount routes
 app.get("/", (req, res) => {
-  res.send("API Working ");
+  res.send("API Working");
 });
 routes(app);
 app.all("*", (req, res, next) => {
