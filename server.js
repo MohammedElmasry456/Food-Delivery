@@ -16,14 +16,14 @@ const port = process.env.PORT || 5000;
 db_connection();
 
 //middlewares
-app.use(express.json());
-app.use(cors());
-if (process.env.MOD === "DEV") app.use(morgan("dev"));
 app.post(
   "/checkout-session",
   express.json({ type: "application/json" }),
   webhookCheckout
 );
+app.use(express.json());
+app.use(cors());
+if (process.env.MOD === "DEV") app.use(morgan("dev"));
 
 //mount routes
 app.get("/", (req, res) => {
