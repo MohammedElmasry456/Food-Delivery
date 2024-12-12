@@ -19,8 +19,8 @@ const foodSchema = new mongoose.Schema(
       required: true,
     },
     category: {
-      type: mongoose.Schema.Types.ObjectId,
-      //   required: true,
+      type: String,
+      required: true,
     },
   },
   { timestamps: true }
