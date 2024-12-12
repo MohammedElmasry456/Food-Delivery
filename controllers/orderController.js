@@ -59,6 +59,8 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
 
   let order;
   if (event.type === "checkout.session.completed") {
+    console.log("create order here");
+    console.log(event.data.object.amount_total / 100);
     order = await orderModel.create({
       userId: req.user._id,
       totalPrice: event.data.object.amount_total / 100,
