@@ -62,11 +62,12 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
   if (event.type === "checkout.session.completed") {
     console.log("create order here");
     console.log(event.data.object.amount_total / 100);
+    const metadata = JSON.parse(event.data.object.metadata.data);
     order = await orderModel.create({
-      ...JSON.parse(event.data.object.metadata.data),
+      ...metadata,
       totalPrice: event.data.object.amount_total / 100,
     });
-    await userModel.findByIdAndUpdate(req.user._id, { cartData: {} });
+    await userModel.findByIdAndUpdate(metadata.userId, { cartData: {} });
   }
 
   res.status(200).send({ Message: "Order Created Successfully", data: order });
