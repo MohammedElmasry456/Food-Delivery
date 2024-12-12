@@ -6,9 +6,6 @@ const userModel = require("../models/userModel");
 
 //Add To Cart
 exports.placeOrder = asyncHandler(async (req, res) => {
-  const order = await orderModel.create({ userId: req.user._id, ...req.body });
-  await userModel.findByIdAndUpdate(req.user._id, { cartData: {} });
-
   const listItems = req.body.items.map((item) => ({
     price_data: {
       currency: "egp",
@@ -40,8 +37,6 @@ exports.placeOrder = asyncHandler(async (req, res) => {
   });
   res.status(200).send({
     Status: "Success",
-    Message: "Order Created Successfully",
-    data: order,
     session,
   });
 });
@@ -62,10 +57,15 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
     }
   }
 
+  let order;
   if (event.type === "checkout.session.completed") {
-    console.log("Create Order Here");
-    console.log(event.data);
+    order = await orderModel.create({
+      userId: req.user._id,
+      totalPrice: event.data.object.amount_total / 100,
+      ...req.body,
+    });
+    await userModel.findByIdAndUpdate(req.user._id, { cartData: {} });
   }
 
-  res.status(200).send();
+  res.status(200).send({ Message: "Order Created Successfully", data: order });
 });
