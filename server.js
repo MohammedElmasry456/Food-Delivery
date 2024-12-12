@@ -6,6 +6,7 @@ const ApiError = require("./utils/ApiError");
 const errorMiddleWare = require("./middlewares/errorMiddleware");
 const db_connection = require("./config/db");
 const { routes } = require("./routes");
+const { webhookCheckout } = require("./controllers/orderController");
 
 //app config
 const app = express();
@@ -18,6 +19,11 @@ db_connection();
 app.use(express.json());
 app.use(cors());
 if (process.env.MOD === "DEV") app.use(morgan("dev"));
+app.post(
+  "/checkout-session",
+  express.json({ type: "application/json" }),
+  webhookCheckout
+);
 
 //mount routes
 app.get("/", (req, res) => {
