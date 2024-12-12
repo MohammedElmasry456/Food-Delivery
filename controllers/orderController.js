@@ -32,7 +32,7 @@ exports.placeOrder = asyncHandler(async (req, res) => {
     line_items: listItems,
     mode: "payment",
     customer_email: req.user.email,
-    metadata: { userId: req.user._id, ...req.body },
+    metadata: req.body,
     success_url: `${process.env.URL}/api/v1/food`,
     cancel_url: `${process.env.URL}/api/v1/cart`,
   });
