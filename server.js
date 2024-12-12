@@ -18,7 +18,7 @@ db_connection();
 //middlewares
 app.post(
   "/checkout-session",
-  express.json({ type: "application/json" }),
+  express.raw({ type: "application/json" }),
   webhookCheckout
 );
 app.use(express.json());
