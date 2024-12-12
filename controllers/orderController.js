@@ -32,6 +32,7 @@ exports.placeOrder = asyncHandler(async (req, res) => {
     line_items: listItems,
     mode: "payment",
     customer_email: req.user.email,
+    metadata: { userId: req.user._id, ...req.body },
     success_url: `${process.env.URL}/api/v1/food`,
     cancel_url: `${process.env.URL}/api/v1/cart`,
   });
@@ -62,9 +63,8 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
     console.log("create order here");
     console.log(event.data.object.amount_total / 100);
     order = await orderModel.create({
-      userId: req.user._id,
+      ...event.data.object.metadata,
       totalPrice: event.data.object.amount_total / 100,
-      ...req.body,
     });
     await userModel.findByIdAndUpdate(req.user._id, { cartData: {} });
   }
