@@ -1,9 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const foodModel = require("../models/foodModel");
-const ApiError = require("../utils/ApiError");
 const cloudinary = require("../utils/cloudinary");
-const ApiFeatures = require("../utils/apiFeatures");
-const { deleteImage } = require("../utils/deleteImage");
+const { addItem, getAllItems, removeItem, getItem } = require("./refHandler");
 
 //Set Image To Body
 exports.uploadImage = asyncHandler(async (req, res, next) => {
@@ -24,42 +22,13 @@ exports.uploadImage = asyncHandler(async (req, res, next) => {
 });
 
 //add food
-exports.addFood = asyncHandler(async (req, res) => {
-  const food = await foodModel.create(req.body);
-  res.status(201).send({
-    Status: "success",
-    Message: "Item Created Successfully",
-    Data: food,
-  });
-});
+exports.addFood = addItem(foodModel);
+
+//get food
+exports.getFood = getItem(foodModel);
 
 //get All food
-exports.getAllFood = asyncHandler(async (req, res) => {
-  let query = new ApiFeatures(req.query, foodModel.find())
-    .filter()
-    .sort()
-    .limitfield()
-    .search();
-
-  query = query.pagination(await query.calcNumOfDoc());
-
-  const { paginationResult, objQuery } = query;
-  const food = await objQuery;
-  res.status(200).send({
-    Status: "success",
-    Message: "Items Fetched Successfully",
-    paginationResult,
-    numOfDoc: food.length,
-    Data: food,
-  });
-});
+exports.getAllFood = getAllItems(foodModel);
 
 // remove food
-exports.removeFood = asyncHandler(async (req, res, next) => {
-  const food = await foodModel.findByIdAndDelete(req.params.id);
-  if (!food) {
-    return next(new ApiError("Food Not Found", 404));
-  }
-  await deleteImage(food.image);
-  res.status(204).send();
-});
+exports.removeFood = removeItem(foodModel);

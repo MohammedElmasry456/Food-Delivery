@@ -20,7 +20,15 @@ const foodSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      required: true,
+      // required: true,
+    },
+    averageRating: {
+      type: Number,
+      // default: 0.0,
+    },
+    NumOfRatings: {
+      type: Number,
+      // default: 0,
     },
   },
   { timestamps: true }

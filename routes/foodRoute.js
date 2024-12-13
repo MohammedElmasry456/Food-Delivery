@@ -4,6 +4,7 @@ const {
   uploadImage,
   getAllFood,
   removeFood,
+  getFood,
 } = require("../controllers/foodController");
 const upload = require("../middlewares/uploadMiddleware");
 
@@ -13,6 +14,6 @@ router
   .post(upload.single("image"), uploadImage, addFood)
   .get(getAllFood);
 
-router.route("/:id").delete(removeFood);
+router.route("/:id").get(getFood).delete(removeFood);
 
 module.exports = router;

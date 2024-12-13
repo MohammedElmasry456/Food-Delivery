@@ -60,8 +60,6 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
 
   let order;
   if (event.type === "checkout.session.completed") {
-    console.log("create order here");
-    console.log(event.data.object.amount_total / 100);
     const metadata = JSON.parse(event.data.object.metadata.data);
     order = await orderModel.create({
       ...metadata,
@@ -71,4 +69,43 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
   }
 
   res.status(200).send({ Message: "Order Created Successfully", data: order });
+});
+
+// get User Orders
+exports.getUserOrders = asyncHandler(async (req, res, next) => {
+  const orders = await orderModel.find({ userId: req.user._id });
+  res.status(200).send({
+    Status: "success",
+    Message: "Orders Fetched Successfully",
+    data: orders,
+  });
+});
+
+// get All Orders
+exports.getAllOrders = asyncHandler(async (req, res, next) => {
+  const orders = await orderModel.find({});
+  res.status(200).send({
+    Status: "success",
+    Message: "Orders Fetched Successfully",
+    data: orders,
+  });
+});
+
+//update order status
+exports.updateOrderStatus = asyncHandler(async (req, res, next) => {
+  const order = await orderModel.findByIdAndUpdate(
+    req.params.id,
+    {
+      status: req.body.status,
+    },
+    { new: true }
+  );
+  if (!order) {
+    return next(new ApiError("Order Not Found", 404));
+  }
+  res.status(200).send({
+    Status: "success",
+    Message: "Status Updated Successfully",
+    data: order,
+  });
 });
