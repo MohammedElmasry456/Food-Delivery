@@ -77,7 +77,7 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
   let order;
   if (event.type === "checkout.session.completed") {
     console.log("before create");
-    createOrder(
+    await createOrder(
       event.data.object.client_reference_id,
       event.data.object.customer_email,
       event.data.object.amount_total
