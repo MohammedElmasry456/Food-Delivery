@@ -37,6 +37,7 @@ exports.placeOrder = asyncHandler(async (req, res) => {
     line_items: listItems,
     mode: "payment",
     customer_email: req.user.email,
+    metadata: { address: req.body.address },
     client_reference_id: cart._id.toString(),
     success_url: `${process.env.URL}/api/v1/food`,
     cancel_url: `${process.env.URL}/api/v1/cart`,
@@ -47,13 +48,14 @@ exports.placeOrder = asyncHandler(async (req, res) => {
   });
 });
 
-const createOrder = async (cartId, email, totalPrice) => {
+const createOrder = async (cartId, email, totalPrice, metadata) => {
   console.log("after create");
   const user = await userModel.findOne({ email });
   const order = await orderModel.create({
     userId: user._id,
     cartId,
     totalPrice: totalPrice / 100,
+    address: metadata.address,
   });
   console.log(order);
 };
@@ -80,7 +82,8 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
     await createOrder(
       event.data.object.client_reference_id,
       event.data.object.customer_email,
-      event.data.object.amount_total
+      event.data.object.amount_total,
+      event.data.object.metadata
     );
   }
 
