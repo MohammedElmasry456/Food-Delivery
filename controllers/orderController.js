@@ -15,7 +15,7 @@ exports.placeOrder = asyncHandler(async (req, res) => {
       currency: "egp",
       product_data: {
         name: item.foodId.name,
-        images: [item.foodId.image],
+        // images: [item.foodId.image],
       },
       unit_amount: Math.round(item.price * 100),
     },
