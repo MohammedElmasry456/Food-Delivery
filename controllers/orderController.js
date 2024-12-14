@@ -70,7 +70,7 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
     //   ...metadata,
     //   totalPrice: event.data.object.amount_total / 100,
     // });
-    console.log(event.data);
+    console.log(event.data.object.client_reference_id);
     // await userModel.findByIdAndUpdate(metadata.userId, { cartData: {} });
   }
 
