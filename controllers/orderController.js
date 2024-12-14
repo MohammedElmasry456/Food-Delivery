@@ -48,11 +48,12 @@ exports.placeOrder = asyncHandler(async (req, res) => {
 });
 
 const createOrder = async (cartId, email, totalPrice) => {
+  console.log("after create");
   const user = await userModel.findOne({ email });
   const order = await orderModel.create({
     userId: user._id,
     cartId,
-    totalPrice,
+    totalPrice: totalPrice / 100,
   });
   console.log(order);
 };
@@ -75,6 +76,7 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
 
   let order;
   if (event.type === "checkout.session.completed") {
+    console.log("before create");
     createOrder(
       event.data.object.client_reference_id,
       event.data.object.customer_email,
