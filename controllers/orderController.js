@@ -15,7 +15,7 @@ exports.placeOrder = asyncHandler(async (req, res) => {
       currency: "egp",
       product_data: {
         name: item.foodId.name,
-        // images: [item.foodId.image],
+        images: [item.foodId.image],
       },
       unit_amount: Math.round(item.price * 100),
     },
@@ -47,6 +47,15 @@ exports.placeOrder = asyncHandler(async (req, res) => {
   });
 });
 
+const createOrder = async (cartId, req) => {
+  const order = await orderModel.create({
+    userId: req.user._id,
+    cartId,
+    ...req.body,
+  });
+  console.log(order);
+};
+
 exports.webhookCheckout = asyncHandler(async (req, res, next) => {
   let event = req.body;
   if (process.env.STRIPE_WEBHOOK_SECRET) {
@@ -65,13 +74,7 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
 
   let order;
   if (event.type === "checkout.session.completed") {
-    // const metadata = JSON.parse(event.data.object.metadata.data);
-    // order = await orderModel.create({
-    //   ...metadata,
-    //   totalPrice: event.data.object.amount_total / 100,
-    // });
-    console.log(event.data.object.client_reference_id);
-    // await userModel.findByIdAndUpdate(metadata.userId, { cartData: {} });
+    createOrder(event.data.object.client_reference_id, req);
   }
 
   res.status(200).send({ Message: "Order Created Successfully", data: order });
