@@ -47,11 +47,12 @@ exports.placeOrder = asyncHandler(async (req, res) => {
   });
 });
 
-const createOrder = async (cartId, req) => {
+const createOrder = async (cartId, email, totalPrice) => {
+  const user = await userModel.findOne({ email });
   const order = await orderModel.create({
-    userId: req.user._id,
+    userId: user._id,
     cartId,
-    ...req.body,
+    totalPrice,
   });
   console.log(order);
 };
@@ -74,7 +75,11 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
 
   let order;
   if (event.type === "checkout.session.completed") {
-    createOrder(event.data.object.client_reference_id, req);
+    createOrder(
+      event.data.object.client_reference_id,
+      event.data.object.customer_email,
+      event.data.object.amount_total
+    );
   }
 
   res.status(200).send({ Message: "Order Created Successfully", data: order });
