@@ -3,14 +3,19 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const ApiError = require("../utils/ApiError");
 const orderModel = require("../models/orderModel");
 const userModel = require("../models/userModel");
+const cartModel = require("../models/cartModel");
 
 //Add To Cart
 exports.placeOrder = asyncHandler(async (req, res) => {
-  const listItems = req.body.items.map((item) => ({
+  const cart = await cartModel
+    .findOne({ userId: req.user._id })
+    .populate({ path: "cartItems.foodId", select: "name image" });
+  const listItems = cart.cartItems.map((item) => ({
     price_data: {
       currency: "egp",
       product_data: {
-        name: item.name,
+        name: item.foodId.name,
+        images: [item.foodId.image],
       },
       unit_amount: Math.round(item.price * 100),
     },
@@ -32,7 +37,7 @@ exports.placeOrder = asyncHandler(async (req, res) => {
     line_items: listItems,
     mode: "payment",
     customer_email: req.user.email,
-    metadata: { data: JSON.stringify({ userId: req.user._id, ...req.body }) },
+    client_reference_id: cart._id.toString(),
     success_url: `${process.env.URL}/api/v1/food`,
     cancel_url: `${process.env.URL}/api/v1/cart`,
   });
@@ -60,12 +65,13 @@ exports.webhookCheckout = asyncHandler(async (req, res, next) => {
 
   let order;
   if (event.type === "checkout.session.completed") {
-    const metadata = JSON.parse(event.data.object.metadata.data);
-    order = await orderModel.create({
-      ...metadata,
-      totalPrice: event.data.object.amount_total / 100,
-    });
-    await userModel.findByIdAndUpdate(metadata.userId, { cartData: {} });
+    // const metadata = JSON.parse(event.data.object.metadata.data);
+    // order = await orderModel.create({
+    //   ...metadata,
+    //   totalPrice: event.data.object.amount_total / 100,
+    // });
+    console.log(event.data);
+    // await userModel.findByIdAndUpdate(metadata.userId, { cartData: {} });
   }
 
   res.status(200).send({ Message: "Order Created Successfully", data: order });
