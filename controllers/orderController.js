@@ -56,7 +56,7 @@ const createOrder = asyncHandler(
     const cart = await cartModel.findById(cartId);
     const order = await orderModel.create({
       userId: user._id,
-      items: cart.items,
+      items: cart.cartItems,
       totalPrice: totalPrice / 100,
       address: metadata.address,
     });
@@ -68,6 +68,7 @@ const createOrder = asyncHandler(
       },
     }));
     await foodModel.bulkWrite(bulkOption, {});
+    await cartModel.findByIdAndDelete(cartId);
   }
 );
 
