@@ -4,6 +4,7 @@ const ApiError = require("../utils/ApiError");
 const orderModel = require("../models/orderModel");
 const userModel = require("../models/userModel");
 const cartModel = require("../models/cartModel");
+const foodModel = require("../models/foodModel");
 
 //Add To Cart
 exports.placeOrder = asyncHandler(async (req, res) => {
@@ -48,17 +49,27 @@ exports.placeOrder = asyncHandler(async (req, res) => {
   });
 });
 
-const createOrder = async (cartId, email, totalPrice, metadata) => {
-  console.log("after create");
-  const user = await userModel.findOne({ email });
-  const order = await orderModel.create({
-    userId: user._id,
-    cartId,
-    totalPrice: totalPrice / 100,
-    address: metadata.address,
-  });
-  console.log(order);
-};
+const createOrder = asyncHandler(
+  async (cartId, email, totalPrice, metadata) => {
+    console.log("after create");
+    const user = await userModel.findOne({ email });
+    const cart = await cartModel.findById(cartId);
+    const order = await orderModel.create({
+      userId: user._id,
+      items: cart.items,
+      totalPrice: totalPrice / 100,
+      address: metadata.address,
+    });
+    console.log(order);
+    const bulkOption = cart.cartItems.map((item) => ({
+      updateOne: {
+        filter: { _id: item.foodId },
+        update: { $inc: { sold: +item.quantity } },
+      },
+    }));
+    await foodModel.bulkWrite(bulkOption, {});
+  }
+);
 
 exports.webhookCheckout = asyncHandler(async (req, res, next) => {
   let event = req.body;

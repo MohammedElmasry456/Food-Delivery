@@ -6,11 +6,21 @@ const orderSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  cartId: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: "Cart",
-  },
+  items: [
+    {
+      foodId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Food",
+        required: true,
+      },
+      color: String,
+      price: Number,
+      quantity: {
+        type: Number,
+        default: 1,
+      },
+    },
+  ],
   totalPrice: {
     type: Number,
     required: true,
